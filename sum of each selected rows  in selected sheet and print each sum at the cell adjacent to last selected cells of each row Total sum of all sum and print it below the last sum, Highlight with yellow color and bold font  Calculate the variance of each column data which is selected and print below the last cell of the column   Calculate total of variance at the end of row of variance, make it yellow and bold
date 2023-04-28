@@ -1,0 +1,75 @@
+function sumRowsAndTotalAndVariance() {
+  // Get the active sheet and selected range
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var range = sheet.getActiveRange();
+  
+  // Initialize a variable to hold the total sum and total variance
+  var totalSum = 0;
+  var totalVariance = 0;
+  
+  // Loop through the rows in the selection
+  for (var i = range.getRow(); i <= range.getLastRow(); i++) {
+    // Get the range for the current row
+    var rowRange = sheet.getRange(i, 1, 1, range.getNumColumns());
+    
+    // Calculate the sum of the row
+    var rowSum = rowRange.getValues()[0].reduce(function(a, b) {
+      return a + b;
+    });
+    
+    // Get the cell adjacent to the last selected cell in the row
+    var adjacentCell = sheet.getRange(i, range.getLastColumn() + 1);
+    
+    // Set the value of the adjacent cell to the sum of the row
+    adjacentCell.setValue(rowSum);
+    
+    // Add the row sum to the total sum
+    totalSum += rowSum;
+  }
+  
+  // Get the cell below the last row of the selection
+  var totalCell = sheet.getRange(range.getLastRow() + 1, range.getLastColumn() + 1);
+  
+  // Set the value of the total cell to the total sum
+  totalCell.setValue(totalSum);
+  
+  // Apply yellow background and bold font to the total cell
+  totalCell.setBackground('yellow');
+  totalCell.setFontWeight('bold');
+  
+  // Loop through the columns in the selection
+  for (var j = range.getColumn(); j <= range.getLastColumn(); j++) {
+    // Get the range for the current column
+    var columnRange = sheet.getRange(range.getRow(), j, range.getNumRows(), 1);
+    
+    // Calculate the variance of the column
+    var columnValues = columnRange.getValues().map(function(row) {
+      return row[0];
+    });
+    var columnMean = columnValues.reduce(function(a, b) {
+      return a + b;
+    }) / columnValues.length;
+    var columnVariance = columnValues.reduce(function(a, b) {
+      return a + Math.pow(b - columnMean, 2);
+    }, 0) / columnValues.length;
+    
+    // Get the cell below the last cell of the column
+    var varianceCell = sheet.getRange(range.getLastRow() + 2, j);
+    
+    // Set the value of the variance cell to the variance of the column
+    varianceCell.setValue(columnVariance);
+    
+    // Add the variance of the column to the total variance
+    totalVariance += columnVariance;
+  }
+  
+  // Get the cell below the last row of the variance cells
+  var totalVarianceCell = sheet.getRange(range.getLastRow() + 2, range.getLastColumn() + 1);
+  
+  // Set the value of the total variance cell to the total variance
+  totalVarianceCell.setValue(totalVariance);
+  
+  // Apply yellow background and bold font to the total variance cell
+  totalVarianceCell.setBackground('yellow');
+  totalVarianceCell.setFontWeight('bold');
+}
